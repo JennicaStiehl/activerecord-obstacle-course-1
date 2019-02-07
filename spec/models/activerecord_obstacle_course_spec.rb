@@ -82,7 +82,8 @@ describe 'ActiveRecord Obstacle Course' do
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
     # Your solution should not contain the ID of the order anywhere
-    order_id = Order.order(:amount).last.id
+    # order_id = Order.order(:amount).last.id
+    order_id = Order.order(amount: :desc).limit(1).first.id
     # ------------------------------------------------------------
 
     # Expectation
@@ -102,8 +103,10 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
-    orders_of_500_and_700 = Order.where('amount = ? or amount = ?', 500, 700)
-    orders_of_700_and_1000 = Order.where('amount = ? or amount = ?', 700, 1000)
+    # orders_of_500_and_700 = Order.where('amount = ? or amount = ?', 500, 700)
+    # orders_of_700_and_1000 = Order.where('amount = ? or amount = ?', 700, 1000)
+    orders_of_500_and_700 = Order.where(amount: [500,700])
+    orders_of_700_and_1000 = Order.where(amount: [700,1000])
     # --------------------------------- ---------------------------
 
     # Expectation
@@ -121,7 +124,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
-    items = Item.select('items.*').where('id = @items_1')
+    items = Item.where(id: ids_to_find)
     # ------------------------------------------------------------
 
     # Expectation
@@ -132,11 +135,12 @@ describe 'ActiveRecord Obstacle Course' do
     ids_to_find = [@order_1.id, @order_3.id, @order_5.id, @order_7.id]
 
     # ----------------------- Using Ruby -------------------------
-    orders = Order.all.select { |order| ids_to_find.include?(order.id) }
+    # orders = Order.all.select { |order| ids_to_find.include?(order.id) }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    orders = Order.where(id: ids_to_find)
     # ------------------------------------------------------------
 
     # Expectation
@@ -146,11 +150,12 @@ describe 'ActiveRecord Obstacle Course' do
   it '7. finds orders with an amount between 700 and 1000' do
     expected_result = [@order_11, @order_13, @order_8, @order_10, @order_15, @order_14, @order_12]
     # ----------------------- Using Ruby -------------------------
-    orders_between_700_and_1000 = Order.all.select { |order| order.amount >= 700 && order.amount <= 1000 }
+    # orders_between_700_and_1000 = Order.all.select { |order| order.amount >= 700 && order.amount <= 1000 }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    orders_between_700_and_1000 = Order.where('amount >= ?', 700).where('amount <= ?', 1000)
     # ------------------------------------------------------------
 
     # Expectation
@@ -161,11 +166,12 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [@order_3, @order_2, @order_1, @order_4]
 
     # ----------------------- Using Ruby -------------------------
-    orders_less_than_550 = Order.all.select { |order| order.amount < 550 }
+    # orders_less_than_550 = Order.all.select { |order| order.amount < 550 }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    orders_less_than_550 = Order.where('amount < ?', 550)
     # ------------------------------------------------------------
 
     # Expectation
@@ -193,11 +199,12 @@ describe 'ActiveRecord Obstacle Course' do
     expected_result = [@order_3, @order_6, @order_15, @order_9, @order_12]
 
     # ----------------------- Using Ruby -------------------------
-    orders_of_user_3 = Order.all.select { |order| order.user_id == @user_3.id }
+    # orders_of_user_3 = Order.all.select { |order| order.user_id == @user_3.id }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    orders_of_user_3 = Order.where(user_id: @user_3.id)
     # ------------------------------------------------------------
 
     # Expectation
@@ -212,11 +219,12 @@ describe 'ActiveRecord Obstacle Course' do
     ]
 
     # ----------------------- Using Ruby -------------------------
-    orders = Order.all.sort_by { |order| order.amount }.reverse
+    # orders = Order.all.sort_by { |order| order.amount }.reverse
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    orders = Order.order(amount: :desc)
     # ------------------------------------------------------------
 
     # Expectation
@@ -231,11 +239,12 @@ describe 'ActiveRecord Obstacle Course' do
     ]
 
     # ----------------------- Using Ruby -------------------------
-    orders = Order.all.sort_by { |order| order.amount }
+    # orders = Order.all.sort_by { |order| order.amount }
     # ------------------------------------------------------------
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    orders = Order.order(:amount)
     # ------------------------------------------------------------
 
     # Expectation
@@ -255,6 +264,8 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    # items = Item.where.not(id: [2,5,6]).order(:created_at).take(7)
+    items = Item.where.not(id: items_not_included)
     # ------------------------------------------------------------
 
     # Expectation
@@ -271,6 +282,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    grouped_items = order.items.order(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -286,6 +298,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    names = Item.pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -323,6 +336,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    names = Order.joins(:items).pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -360,6 +374,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    users = User.joins(:order_items).where(order_items: {item_id: @item_8}).distinct.pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -376,6 +391,7 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    names = Order.last.items.order(:id).pluck(:name)
     # ------------------------------------------------------------
 
     # Expectation
@@ -400,6 +416,8 @@ describe 'ActiveRecord Obstacle Course' do
 
     # ------------------ Using ActiveRecord ----------------------
     # Solution goes here
+    expected_result = Item.joins(:orders).where({orders:{user_id:2,id:3}}).order(:created_at).distinct.pluck(:name)
+
     # ------------------------------------------------------------
 
     # Expectation
